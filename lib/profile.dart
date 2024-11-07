@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class HomeFeed extends StatefulWidget{
-  const HomeFeed({super.key, required this.title});
+
+class Profile extends StatefulWidget{
+  const Profile({super.key, required this.title});
   final String title;
   @override
-  State<HomeFeed> createState() => _HomeFeedState();
+  State<Profile> createState() => _ProfileState();
 }
 
-class _HomeFeedState extends State<HomeFeed> {
+class _ProfileState extends State<Profile> {
  
   int _selectedIndex = 0;
   
@@ -44,57 +45,7 @@ class _HomeFeedState extends State<HomeFeed> {
         ),
       ),
 
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 18.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(90.0),
-                    ),
-                    backgroundColor: const Color.fromARGB(255, 115, 181, 110),
-                    minimumSize: Size(170, 50),
-                  ),
-                  onPressed: () {
-                    context.go('/chicofeed'); 
-                  },
-                  child: Text(
-                    "Chico",
-                    style: GoogleFonts.abrilFatface(
-                      fontSize: 20.0,
-                      color: const Color.fromARGB(255, 16, 43, 92),
-                    ),
-                    ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(90.0),
-                    ),
-                    backgroundColor: const Color.fromARGB(255, 115, 181, 110),
-                    minimumSize: const Size(170, 50),
-                  ),
-                  onPressed: () {
-                    context.go('/friendfeed'); 
-                  },
-                  child: Text(
-                    "Friends",
-                    style: GoogleFonts.abrilFatface(
-                      fontSize: 20.0,
-                      color: const Color.fromARGB(255, 16, 43, 92),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-      
+    
       bottomNavigationBar: BottomNavigationBar( // Bottom navigation bar with Home, Upload, and Profile buttons.
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
@@ -119,7 +70,6 @@ class _HomeFeedState extends State<HomeFeed> {
               label: 'Profile',
             ),
           ],
-          
           currentIndex: _selectedIndex,
           selectedItemColor: Theme.of(context).colorScheme.primary,  
           
@@ -138,3 +88,6 @@ class _HomeFeedState extends State<HomeFeed> {
     );
   }
 }
+
+
+
