@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'homefeed.dart';
+import 'profile.dart';
 import 'storage.dart';
-//import 'profile.dart';
-//import 'createcache.dart';
+import 'create_cache.dart';
+import 'friend_feed.dart';
+import 'chico_feed.dart';
 //import 'createaccount.dart';
 
 void main() {
@@ -15,9 +17,9 @@ final _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder:(context, state) => const HomeFeed(title: 'Home Feed!')
+      builder:(context, state) => const HomeFeed(title: 'ChicoCache')
     ),
-    /*GoRoute(
+    GoRoute(
       path: '/profile',
       builder : (context, state) => const Profile(title: 'Profile!')
     ),
@@ -26,9 +28,14 @@ final _router = GoRouter(
       builder: (context, state) => const CreateCache(title: 'Create Cache!')
     ),
     GoRoute(
-      path: '/createaccount',
-      builder: (context, state) => const CreateAccount(title: 'Create Account!')
-    ),*/
+      path: '/friendfeed',
+      builder: (context, state) => const FriendFeed(title: 'Friend Feed!')
+    ),
+    GoRoute(
+      path: '/chicofeed',
+      builder: (context, state) => const ChicoFeed(title: 'Chico Feed!')
+    ),
+    
   ],
 );
 
@@ -39,7 +46,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'ChicoCache',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 31, 245, 11)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 41, 209, 26)),
         useMaterial3: true,
       ),
       routerConfig: _router,

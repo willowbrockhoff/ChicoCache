@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class HomeFeed extends StatefulWidget{
-  const HomeFeed({super.key, required this.title});
+class FriendFeed extends StatefulWidget{
+  const FriendFeed({super.key, required this.title});
   final String title;
   @override
-  State<HomeFeed> createState() => _HomeFeedState();
+  State<FriendFeed> createState() => _FriendFeedState();
 }
 
-class _HomeFeedState extends State<HomeFeed> {
+class _FriendFeedState extends State<FriendFeed> {
  
   int _selectedIndex = 0;
   
@@ -39,7 +39,7 @@ class _HomeFeedState extends State<HomeFeed> {
           widget.title,
           style: GoogleFonts.abrilFatface(
             fontSize: 32.0, 
-            color: const Color.fromARGB(255, 16, 43, 92), 
+            color: const Color.fromARGB(255, 16, 43, 92),
           )
         ),
       ),
@@ -47,7 +47,7 @@ class _HomeFeedState extends State<HomeFeed> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 18.0),
+            padding: const EdgeInsets.symmetric(vertical: 18.0),      //Chico and Friend Feed buttons.
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -59,16 +59,16 @@ class _HomeFeedState extends State<HomeFeed> {
                     backgroundColor: const Color.fromARGB(255, 115, 181, 110),
                     minimumSize: Size(170, 50),
                   ),
-                  onPressed: () {
-                    context.go('/chicofeed'); 
+                  onPressed: () { 
+                      context.go('/chicofeed');     
                   },
                   child: Text(
                     "Chico",
                     style: GoogleFonts.abrilFatface(
                       fontSize: 20.0,
-                      color: const Color.fromARGB(255, 16, 43, 92),
+                      color:  Color.fromARGB(255, 16, 43, 92),
                     ),
-                    ),
+                  ),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -76,16 +76,16 @@ class _HomeFeedState extends State<HomeFeed> {
                       borderRadius: BorderRadius.circular(90.0),
                     ),
                     backgroundColor: const Color.fromARGB(255, 115, 181, 110),
-                    minimumSize: const Size(170, 50),
+                    minimumSize: Size(170, 50),
                   ),
                   onPressed: () {
-                    context.go('/friendfeed'); 
+                    context.go('/friendfeed');
                   },
                   child: Text(
                     "Friends",
                     style: GoogleFonts.abrilFatface(
                       fontSize: 20.0,
-                      color: const Color.fromARGB(255, 16, 43, 92),
+                      color:  Color.fromARGB(255, 16, 43, 92),
                     ),
                   ),
                 ),
@@ -119,10 +119,9 @@ class _HomeFeedState extends State<HomeFeed> {
               label: 'Profile',
             ),
           ],
-          
           currentIndex: _selectedIndex,
+         
           selectedItemColor: Theme.of(context).colorScheme.primary,  
-          
           selectedLabelStyle: const TextStyle( //selctedItemColor and unselctedItemColor embolden the Home, Upload, and Profile labels
             fontSize: 16.0,                      // both functions set the values the same with the goal of readabilty (not clarifying which is pressed)
             fontWeight: FontWeight.bold, 
@@ -132,9 +131,11 @@ class _HomeFeedState extends State<HomeFeed> {
             fontWeight: FontWeight.bold,
             color: Colors.black, 
           ),
-
           onTap: _onItemTapped,
       ),
     );
   }
 }
+
+
+
