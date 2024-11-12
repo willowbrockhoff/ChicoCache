@@ -9,7 +9,11 @@ import 'friend_feed.dart';
 import 'chico_feed.dart';
 //import 'createaccount.dart';
 
-void main() {
+void main() async {
+  // Ensure the flutter framework is initialized before using await
+  WidgetsFlutterBinding.ensureInitialized();
+  // Initialize database before we need to access it
+  await localDatabase.instance.database;
   runApp(const MyApp());
 }
 

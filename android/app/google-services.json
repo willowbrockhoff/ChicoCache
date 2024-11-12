@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "266028894231",
+    "project_id": "chicocache-97480",
+    "storage_bucket": "chicocache-97480.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:266028894231:android:b9b10f0dddf071e1fd7452",
+        "android_client_info": {
+          "package_name": "com.ChicoCache.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcBcb6GF4iJxHG47znIvirLVPzFwIEk1Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

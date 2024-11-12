@@ -8,7 +8,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
-class localDatabase {
+class localDatabase extends Sqflite{
     static Database? _database;
 
     // By utilizing a private constructor, we prevent other parts of the
@@ -41,17 +41,37 @@ class localDatabase {
     }
 
     FutureOr<void> _onCreate(Database db, int version) async {
+        // Users table gets generated first, because it hurts my brain the most
+        //  on instantiation of a new user, we create a new document in firebase
+        //  and then we use the auto-generated document id to set the user_id
+        //  for the rest of the database, we save data relative to the user_id
+        //  that we store when the account is created.
+        //  I'm going to cry if this doesn't work.
+        await db.execute('''
+            CREATE TABLE users (
+                user_id TEXT PRIMARY KEY,
+                username TEXT,
+                profile_pic TEXT,
+                geocaches_found INTEGER,
+                geocaches_created INTEGER
+            )
+        ''');
+        // creator_id is set to user_id
+        // firebase uses a 'geopoint' data type that stores both long. and lat.
         await db.execute('''
             CREATE TABLE geocaches (
             cache_id TEXT PRIMARY KEY,
+            creator_comments TEXT,
+            creator_id TEXT,
+            creator_photos TEXT,
+            difficulty INTEGER,
             latitude REAL,
             longitude REAL,
-            difficulty INTEGER,
-            creator_id TEXT,
-            creator_comments TEXT,
-            creator_photos TEXT
+            FOREIGN KEY (creator_id) REFERENCES users (user_id)
             )
         ''');
+        // Utilize user_id to fetch username from user table.
+        //  Maybe profile references too if we feel particularly masochistic.
         await db.execute('''
             CREATE TABLE comments (
                 comment_id TEXT PRIMARY KEY,
@@ -61,25 +81,10 @@ class localDatabase {
                 timestamp INTEGER,
                 comment_photos TEXT,
                 FOREIGN KEY (cache_id) REFERENCES geocaches (cache_id)
-            )
-        ''');
-        await db.execute('''
-            CREATE TABLE users (
-                user_id TEXT PRIMARY KEY,
-                username TEXT,
-                profile_pic TEXT,
-                friends_list TEXT
-            )
-        ''');
-        await db.execute('''
-            CREATE TABLE geocaching_statistics (
-                user_id TEXT PRIMARY KEY,
-                geocaches_found INTEGER,
-                time_found TEXT,
-                geocaches_created INTEGER,
                 FOREIGN KEY (user_id) REFERENCES users (user_id)
             )
         ''');
+        // Utilize user_id to fetch username from user table.
         await db.execute('''
             CREATE TABLE friends (
                 user_id TEXT,
@@ -87,6 +92,13 @@ class localDatabase {
                 PRIMARY KEY (user_id, friend_id),
                 FOREIGN KEY (user_id) REFERENCES users (user_id),
                 FOREIGN KEY (friend_id) REFERENCES users (user_id)
+            )
+        ''');
+        // This table is used to minimize the synchronization done with firebase
+        await db.execute('''
+            CREATE TABLE SyncStatus (
+              collectionName TEXT PRIMARY KEY,
+              lastSyncTime INTEGER
             )
         ''');
     }
