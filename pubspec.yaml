@@ -41,6 +41,7 @@ dependencies:
   path_provider: ^2.1.5
   sqflite: ^2.4.0
   cloud_firestore: ^5.4.5
+  google_maps_flutter: ^2.9.0
   #firebase_auth: ^5.3.1
 
 dev_dependencies:
