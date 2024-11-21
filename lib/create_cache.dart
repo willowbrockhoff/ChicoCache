@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class CreateCache extends StatefulWidget{
   const CreateCache({super.key, required this.title});
@@ -11,6 +11,12 @@ class CreateCache extends StatefulWidget{
 }
 
 class _CreateCacheState extends State<CreateCache> {
+  late GoogleMapController mapCont;
+  final LatLng _center = const LatLng(-33.86, 151.20);
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapCont = controller;
+  }
  
   int _selectedIndex = 0;
   
@@ -43,6 +49,31 @@ class _CreateCacheState extends State<CreateCache> {
             color: const Color.fromARGB(255, 16, 43, 92), 
           )
         ),
+      ),
+
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 18.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded (
+                  child: Container(
+                    height: 400,
+                    child: GoogleMap(
+                      onMapCreated: _onMapCreated,
+                      initialCameraPosition: CameraPosition(
+                        target: _center,
+                        zoom: 11.0,
+                      ),
+                    ),
+                  ),
+                ),
+              ], 
+            ),
+          ),
+        ],
       ),
 
       bottomNavigationBar: BottomNavigationBar( // Bottom navigation bar with Home, Upload, and Profile buttons.

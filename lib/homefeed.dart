@@ -1,6 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import 'location_manager.dart';
 
 class HomeFeed extends StatefulWidget{
   const HomeFeed({super.key, required this.title});
@@ -10,6 +15,73 @@ class HomeFeed extends StatefulWidget{
 }
 
 class _HomeFeedState extends State<HomeFeed> {
+  late GoogleMapController? mapCont;
+  StreamSubscription<Position>? _positionStream;
+  Position? _position;
+
+  @override
+  void initState() {
+    super.initState();
+    _locationSetup();
+  }
+
+  @override
+  void dispose() {
+    _positionStream?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _locationSetup() async {
+    // Check and request location permissions
+    final status = await checkAndRequestPermissions();
+
+    if (status) {
+      // Permission granted, fetch location
+      _startLocationStream();
+    }
+    // In the else case, they denied permissions. Sucks to be them.
+    // Map works normally but doesn't follow and starts at (0.0, 0.0)
+    // They should've been prompted with app settings, so it's on them at this point.
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapCont = controller;
+
+    if (_position != null && mapCont != null) {
+      mapCont!.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: _position != null
+              ? LatLng(_position!.latitude, _position!.longitude)
+              : const LatLng(0.0, 0.0),
+            zoom: 20,
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _startLocationStream() async {
+    _positionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+      (Position position) {
+        setState(() {
+          _position = position;
+        });
+
+        // Automatically move the map to the user's location
+        if (mapCont != null && _position != null) {
+          mapCont!.animateCamera(
+            CameraUpdate.newCameraPosition(
+              CameraPosition(
+                target: LatLng(_position!.latitude, _position!.longitude),
+                zoom: 20,
+              ),
+            ),
+          );
+        }
+      },
+    );
+  }
  
   int _selectedIndex = 0;
   
@@ -89,6 +161,28 @@ class _HomeFeedState extends State<HomeFeed> {
                     ),
                   ),
                 ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 18.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded (
+                  child: Container(
+                    height: 400,
+                    child: GoogleMap(
+                      onMapCreated: _onMapCreated,
+                      initialCameraPosition: _position == null
+                          ? const CameraPosition(target: LatLng(0.0, 0.0), zoom: 20)
+                          : CameraPosition(
+                              target: LatLng(_position!.latitude, _position!.longitude),
+                              zoom: 20,
+                            ),
+                    ),
+                  ),
+                )
               ],
             ),
           ),
