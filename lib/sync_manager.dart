@@ -2,9 +2,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sqflite/sqflite.dart';
 import 'storage.dart';
 
+import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+//import 'package:firebase_core/firebase_core.dart';
+//import 'package:flutter/material.dart';
+//import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+
 class SyncManager {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final localDatabase _dbInstance = localDatabase.instance;
+  //final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<Database> _getDataBase() async {
     return await _dbInstance.database;
@@ -178,6 +185,30 @@ class SyncManager {
       );
       _setLastSyncTime('friends', maxLastUpdated);
       await batch.commit();
+    }
+  }
+
+  Future<void> syncUserData(User user) async {
+    try {
+      DocumentReference userRef = FirebaseFirestore.instance.collection('users').doc(user.uid); 
+      await userRef.set({
+        'name': user.displayName ?? 'Unknown',
+        'email': user.email ?? 'No email',
+        'createdAt': Timestamp.now(),
+      });
+      print('User data synced to Firestore');
+    } catch (e) {
+      print('Error syncing user data to Firestore: $e');
+    }
+  }
+  Future<void> syncDataForAuthenticatedUser() async {
+    try {
+      await syncUsers();    // Sync users data
+      await syncGeocaches();// Sync geocache data
+      await syncComments(); // Sync comments data
+      await syncFriends(); // Sync friends data
+    } catch (e) {
+      print("Error syncing data for authenticated user: $e");
     }
   }
 
