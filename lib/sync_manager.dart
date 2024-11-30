@@ -1,3 +1,6 @@
+//import 'dart:ffi';
+
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sqflite/sqflite.dart';
 import 'storage.dart';
@@ -6,12 +9,59 @@ class SyncManager {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final localDatabase _dbInstance = localDatabase.instance;
 
-  Future<Database> _getDataBase() async {
+  Future<Database> _getDatabase() async {
     return await _dbInstance.database;
   }
 
+  Future<void> uploadGeocache(
+    String title,
+    String desc,
+    String id,
+    String photos,
+    LatLng coord,
+    int diff) async {
+    final db = await _getDatabase();
+
+    Map<String, dynamic> geocache = {
+      'cache_id': title,
+      'creator_comments': desc,
+      'creator_id': id,
+      'creator_photos': photos,
+      'difficulty': diff,
+      'latitude': coord.latitude,
+      'longitude': coord.longitude,
+    };
+
+    await db.insert(
+      'geocaches',
+      geocache,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    try {
+      // Convert LatLng to Firestore GeoPoint
+      GeoPoint geoPoint = GeoPoint(coord.latitude, coord.longitude);
+
+      // Create the geocache data for Firestore
+      Map<String, dynamic> geoCacheData = {
+        'cache_id': id,
+        'creator_comments': desc,
+        'creator_id': 'user_id_here', // Set user ID dynamically as needed
+        'creator_photos': photos,
+        'difficulty': diff,
+        'location': geoPoint, // GeoPoint in Firestore
+      };
+
+      // Upload to Firestore
+      await _firestore.collection('geocaches').doc(id).set(geoCacheData);
+      print("Geocache synced to Firestore successfully!");
+    } catch (e) {
+      print("Error syncing geocache to Firestore: $e");
+    }
+  }
+
   Future<void> syncUsers() async {
-    final db = await _getDataBase();
+    final db = await _getDatabase();
 
     int? lastSync = await _getLastSyncTime('users');
     Query query = _firestore.collection('users');
@@ -55,7 +105,7 @@ class SyncManager {
   }
 
   Future<void> syncGeocaches() async {
-    final db = await _getDataBase();
+    final db = await _getDatabase();
 
     int? lastSync = await _getLastSyncTime('geocaches');
     Query query = _firestore.collection('geocaches');
@@ -102,7 +152,7 @@ class SyncManager {
   }
 
   Future<void> syncComments() async {
-    final db = await _getDataBase();
+    final db = await _getDatabase();
 
     int? lastSync = await _getLastSyncTime('comments');
     Query query = _firestore.collection('comments');
@@ -144,7 +194,7 @@ class SyncManager {
   }
 
   Future<void> syncFriends() async {
-    final db = await _getDataBase();
+    final db = await _getDatabase();
 
     int? lastSync = await _getLastSyncTime('friends');
     Query query = _firestore.collection('friends');
@@ -182,7 +232,7 @@ class SyncManager {
   }
 
   Future<int?> _getLastSyncTime(String collectionName) async {
-    final db = await _getDataBase();
+    final db = await _getDatabase();
     final List<Map<String, dynamic>> result = await db.query(
       'SyncStatus',
       columns: ['lastSyncTime'],
@@ -197,7 +247,7 @@ class SyncManager {
   }
 
   Future<void> _setLastSyncTime(String collectionName, DateTime timestamp) async {
-    final db = await _getDataBase();
+    final db = await _getDatabase();
     await db.insert(
       'SyncStatus',
       {

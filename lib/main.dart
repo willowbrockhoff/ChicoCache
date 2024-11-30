@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_core/firebase_core.dart'; 
 
 import 'homefeed.dart';
 import 'profile.dart';
@@ -7,6 +8,7 @@ import 'storage.dart';
 import 'create_cache.dart';
 import 'friend_feed.dart';
 import 'chico_feed.dart';
+import 'sync_manager.dart';
 //import 'createaccount.dart';
 
 void main() async {
@@ -14,6 +16,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Initialize database before we need to access it
   await localDatabase.instance.database;
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
