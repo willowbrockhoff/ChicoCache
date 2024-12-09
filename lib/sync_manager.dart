@@ -6,6 +6,12 @@ import 'package:sqflite/sqflite.dart';
 import 'storage.dart';
 
 class SyncManager {
+  SyncManager._privateConstructor();
+
+  static final SyncManager _instance = SyncManager._privateConstructor();
+
+  static SyncManager get instance => _instance;
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final localDatabase _dbInstance = localDatabase.instance;
 
@@ -13,13 +19,8 @@ class SyncManager {
     return await _dbInstance.database;
   }
 
-  Future<void> uploadGeocache(
-    String title,
-    String desc,
-    String id,
-    String photos,
-    LatLng coord,
-    int diff) async {
+  Future<void> uploadGeocache(String title, String desc, String id,
+      String photos, LatLng coord, int diff) async {
     final db = await _getDatabase();
 
     Map<String, dynamic> geocache = {
@@ -67,9 +68,8 @@ class SyncManager {
     Query query = _firestore.collection('users');
     // Only query data newer than our most current local record
     if (lastSync != null) {
-      query = query.where(
-        'updatedAt', isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync)
-      );
+      query = query.where('updatedAt',
+          isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync));
     }
 
     final batch = db.batch();
@@ -111,9 +111,8 @@ class SyncManager {
     Query query = _firestore.collection('geocaches');
     // Only query data newer than our most current local record
     if (lastSync != null) {
-      query = query.where(
-        'updatedAt', isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync)
-      );
+      query = query.where('updatedAt',
+          isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync));
     }
 
     final batch = db.batch();
@@ -122,11 +121,14 @@ class SyncManager {
     for (final doc in qs.docs) {
       final data = doc.data() as Map<String, dynamic>;
 
-      final geoPoint =data['location'] as GeoPoint;
+      final geoPoint = data['location'] as GeoPoint;
       final lat = geoPoint.latitude;
       final long = geoPoint.longitude; // Appreciate long not being reserved
 
-      final lastUpdated = data['lastUpdated'] as Timestamp;
+      var lastUpdated = Timestamp(0, 0);
+      if (data['lastUpdated'] != null) {
+        lastUpdated = data['lastUpdated'] as Timestamp;
+      }
       final lastUpdatedDate = lastUpdated.toDate();
 
       if (lastUpdatedDate.isAfter(maxLastUpdated)) {
@@ -158,9 +160,8 @@ class SyncManager {
     Query query = _firestore.collection('comments');
     // Only query data newer than our most current local record
     if (lastSync != null) {
-      query = query.where(
-        'updatedAt', isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync)
-      );
+      query = query.where('updatedAt',
+          isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync));
     }
 
     final batch = db.batch();
@@ -183,7 +184,8 @@ class SyncManager {
           'cache_id': data['cache_id'],
           'comment_photos': data['comment_photos'],
           'comment_text': data['comment_text'],
-          'timestamp': (data['timestamp'] as Timestamp).toDate().microsecondsSinceEpoch,
+          'timestamp':
+              (data['timestamp'] as Timestamp).toDate().microsecondsSinceEpoch,
           'user_id': data['user_id'],
         },
         conflictAlgorithm: ConflictAlgorithm.replace,
@@ -200,9 +202,8 @@ class SyncManager {
     Query query = _firestore.collection('friends');
     // Only query data newer than our most current local record
     if (lastSync != null) {
-      query = query.where(
-        'updatedAt', isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync)
-      );
+      query = query.where('updatedAt',
+          isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync));
     }
 
     final batch = db.batch();
@@ -246,15 +247,33 @@ class SyncManager {
     return Future.value(null);
   }
 
-  Future<void> _setLastSyncTime(String collectionName, DateTime timestamp) async {
+  Future<void> _setLastSyncTime(
+      String collectionName, DateTime timestamp) async {
     final db = await _getDatabase();
     await db.insert(
       'SyncStatus',
       {
         'collectionName': collectionName,
-        'lastSyncTime': timestamp,
+        'lastSyncTime': timestamp.millisecondsSinceEpoch,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+  }
+
+  Future<void> loadStartup() async {
+    await syncGeocaches();
+    await syncUsers();
+    await syncComments();
+    await syncFriends();
+  }
+
+  Future<List<Map<String, dynamic>>> loadGeocacheData() async {
+    final db = await _getDatabase();
+    return await db.rawQuery('''
+      SELECT
+        cache_id, creator_id, creator_comments, difficulty, latitude, longitude
+      from
+        geocaches
+      ''');
   }
 }

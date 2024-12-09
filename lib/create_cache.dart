@@ -29,7 +29,7 @@ class _CreateCacheState extends State<CreateCache> {
   StreamSubscription<Position>? _positionStream;
   final _formKey = GlobalKey<FormState>();
   late GoogleMapController? mapCont;
-  SyncManager sm = SyncManager();
+  SyncManager sm = SyncManager.instance;
   String? _base64Image;
   XFile? _selectedImage;
   Position? _position;

@@ -6,14 +6,16 @@ const LocationSettings locationSettings = LocationSettings(
   distanceFilter: 1,
 );
 
-final positionStream = Geolocator.getPositionStream(locationSettings: locationSettings);
+final positionStream =
+    Geolocator.getPositionStream(locationSettings: locationSettings);
 
 Future<bool> checkAndRequestPermissions() async {
   LocationPermission permission = await Geolocator.checkPermission();
 
   if (permission == LocationPermission.deniedForever) {
     await Geolocator.openAppSettings();
-    return permission == LocationPermission.always || permission == LocationPermission.always;
+    return permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse;
   } else if (permission == LocationPermission.denied) {
     // Request permissions if they are simply denied
     permission = await Geolocator.requestPermission();
@@ -26,7 +28,8 @@ Future<bool> checkAndRequestPermissions() async {
   }
 
   // At this point, you can check again if permission is granted
-  if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
+  if (permission == LocationPermission.whileInUse ||
+      permission == LocationPermission.always) {
     return true;
     // Permissions granted, either in app or always, later (cache hunting) we may need to specify but this works for now.
   } else {
