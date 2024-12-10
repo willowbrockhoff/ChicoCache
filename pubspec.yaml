@@ -48,6 +48,9 @@ dependencies:
   firebase_database: ^11.1.6
   syncfusion_flutter_datepicker: ^27.2.3
   firebase_core: ^3.8.0
+  image_picker: ^1.1.2
+  flutter_image_compress: ^2.3.0
+  firebase_storage: ^12.3.7
   #firebase_auth: ^5.3.1
 
 dev_dependencies:
@@ -76,6 +79,11 @@ flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
+
+  assets:
+    - assets/images/kittenterrorist.webp
+    - assets/images/fishkitten.png
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

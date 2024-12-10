@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_core/firebase_core.dart'; 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';  // Make sure this import is added
 import 'homefeed.dart';
 import 'profile.dart';
 import 'storage.dart';
 import 'create_cache.dart';
 import 'friend_feed.dart';
 import 'chico_feed.dart';
+import 'sync_manager.dart';
 import 'create_account_screen.dart';
 import 'create_account.dart';
 
@@ -18,6 +19,7 @@ void main() async {
   await Firebase.initializeApp();
   // Initialize database before we need to access it
   await localDatabase.instance.database;
+  await Firebase.initializeApp();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   User? currentUser = _auth.currentUser;
