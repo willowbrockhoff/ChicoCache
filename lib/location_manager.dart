@@ -3,7 +3,7 @@ import 'package:geolocator/geolocator.dart';
 
 const LocationSettings locationSettings = LocationSettings(
   accuracy: LocationAccuracy.high,
-  distanceFilter: 1,
+  distanceFilter: 10,
 );
 
 final positionStream =

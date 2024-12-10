@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:geolocator/geolocator.dart';
@@ -134,7 +136,7 @@ class _ChicoFeedState extends State<ChicoFeed> {
         final geocache = _geocacheData[index];
         return ListTile(
           title: Text(
-            geocache['creator_comments'] ?? 'No comments',
+            geocache['cache_id'] ?? 'No title',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           subtitle: Text('Difficulty: ${geocache['difficulty']}'),
@@ -142,6 +144,11 @@ class _ChicoFeedState extends State<ChicoFeed> {
           onTap: () {
             final LatLng loc =
                 LatLng(geocache['latitude'], geocache['longitude']);
+            final String? image = geocache['creator_photos'] as String?;
+            Uint8List? imageBytes;
+            if (image != null) {
+              imageBytes = base64Decode(image);
+            }
 
             if (mapCont != null) {
               mapCont!.animateCamera(
@@ -163,10 +170,24 @@ class _ChicoFeedState extends State<ChicoFeed> {
                         Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Text(
-                            "lat, lon: ${geocache['latitude']}, ${geocache['longitude']}",
+                            "lat, lon: ${loc.latitude}, ${loc.longitude}",
                             style: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                           ),
+                        ),
+                        ListTile(
+                          leading: imageBytes != null
+                              ? Image.memory(
+                                  imageBytes,
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                )
+                              : const Icon(
+                                  Icons.image,
+                                  size: 50,
+                                ),
+                          title: Text(geocache['creator_comments']),
                         ),
                         ListTile(
                           leading: const Icon(Icons.terrain),

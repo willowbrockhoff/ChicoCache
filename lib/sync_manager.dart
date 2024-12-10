@@ -45,16 +45,16 @@ class SyncManager {
 
       // Create the geocache data for Firestore
       Map<String, dynamic> geoCacheData = {
-        'cache_id': id,
+        'cache_id': title,
         'creator_comments': desc,
-        'creator_id': 'user_id_here', // Set user ID dynamically as needed
+        'creator_id': id,
         'creator_photos': photos,
         'difficulty': diff,
         'location': geoPoint, // GeoPoint in Firestore
       };
 
       // Upload to Firestore
-      await _firestore.collection('geocaches').doc(id).set(geoCacheData);
+      await _firestore.collection('geocaches').doc(title).set(geoCacheData);
       print("Geocache synced to Firestore successfully!");
     } catch (e) {
       print("Error syncing geocache to Firestore: $e");
@@ -269,11 +269,6 @@ class SyncManager {
 
   Future<List<Map<String, dynamic>>> loadGeocacheData() async {
     final db = await _getDatabase();
-    return await db.rawQuery('''
-      SELECT
-        cache_id, creator_id, creator_comments, difficulty, latitude, longitude
-      from
-        geocaches
-      ''');
+    return await db.rawQuery('SELECT * FROM geocaches');
   }
 }
