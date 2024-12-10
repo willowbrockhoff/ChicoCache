@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import 'location_manager.dart';
 import 'sync_manager.dart';
@@ -143,46 +144,6 @@ class _CreateCacheState extends State<CreateCache> {
         }
       }
     }
-
-    // File? imageFile;
-    // if (pickedFile != null) {
-    //   imageFile = File(pickedFile!.path);
-    // }
-
-    // if (imageFile != null) {
-    //   File? compressedFile = await FlutterImageCompress.compressAndGetFile(
-    //     imageFile.path,
-    //     "${imageFile.path}_compressed.jpg",
-    //     minWidth: 640,
-    //     minHeight: 480,
-    //     quality: 80, // Initial quality setting
-    //   );
-
-    //   if (compressedFile != null) {
-    //     // Iteratively compress until size < maxSizeInKB
-    //     int fileSizeInKB = compressedFile.lengthSync() ~/ 1024;
-    //     int currentQuality = 80;
-
-    //     while (fileSizeInKB > 300 && currentQuality > 10) {
-    //       currentQuality -= 10; // Reduce quality in steps
-    //       compressedFile = await FlutterImageCompress.compressAndGetFile(
-    //         compressedFile!.path,
-    //         "${compressedFile!.path}_compressed.jpg",
-    //         quality: currentQuality,
-    //       );
-    //       if (compressedFile == null) return;
-    //       fileSizeInKB = compressedFile.lengthSync() ~/ 1024;
-    //     }
-
-    //     if (compressedFile != null) {
-    //       setState(() {
-    //         _selectedImage = compressedFile;
-    //         _base64Image = compressedFile?.readAsBytesSync() != null
-    //           ? base64Encode(compressedFile!.readAsBytesSync())
-    //           : "";
-    //       });
-    //     }
-    //   }
   }
 
   int _selectedIndex = 0;
@@ -363,7 +324,7 @@ class _CreateCacheState extends State<CreateCache> {
                           ElevatedButton(
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
-                                _base64Image ??= "";
+                                _base64Image ??= null;
                                 await sm.uploadGeocache(
                                   _nameController.text,
                                   _descController.text,

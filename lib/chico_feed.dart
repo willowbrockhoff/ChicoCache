@@ -217,7 +217,6 @@ class _ChicoFeedState extends State<ChicoFeed> {
               color: const Color.fromARGB(255, 16, 43, 92),
             )),
       ),
-
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -256,80 +255,6 @@ class _ChicoFeedState extends State<ChicoFeed> {
           ),
         ],
       ),
-
-      // body: Column(
-      //   children: [
-      //     Padding(
-      //       padding: const EdgeInsets.symmetric(vertical: 18.0), // Chico and Friend Feed buttons.
-      //       child: Row(
-      //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      //         children: [
-      //           ElevatedButton(
-      //             style: ElevatedButton.styleFrom(
-      //               shape: RoundedRectangleBorder(
-      //                 borderRadius: BorderRadius.circular(90.0),
-      //               ),
-      //               backgroundColor: const Color.fromARGB(255, 115, 181, 110),
-      //               minimumSize: Size(170, 50),
-      //             ),
-      //             onPressed: () {
-      //                 context.go('/chicofeed');
-      //             },
-      //             child: Text(
-      //               "Chico",
-      //               style: GoogleFonts.abrilFatface(
-      //                 fontSize: 20.0,
-      //                 color:  Color.fromARGB(255, 16, 43, 92),
-      //               ),
-      //             ),
-      //           ),
-      //           ElevatedButton(
-      //             style: ElevatedButton.styleFrom(
-      //               shape: RoundedRectangleBorder(
-      //                 borderRadius: BorderRadius.circular(90.0),
-      //               ),
-      //               backgroundColor: const Color.fromARGB(255, 115, 181, 110),
-      //               minimumSize: Size(170, 50),
-      //             ),
-      //             onPressed: () {
-      //               context.go('/friendfeed');
-      //             },
-      //             child: Text(
-      //               "Friends",
-      //               style: GoogleFonts.abrilFatface(
-      //                 fontSize: 20.0,
-      //                 color:  Color.fromARGB(255, 16, 43, 92),
-      //               ),
-      //               ),
-      //           ),
-      //         ],
-      //       ),
-      //     ),
-      //     Padding(
-      //       padding: const EdgeInsets.symmetric(vertical: 18.0),
-      //       child: Row(
-      //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      //         children: [
-      //           Expanded (
-      //             child: Container(
-      //               height: 400,
-      //               child: GoogleMap(
-      //                 onMapCreated: _onMapCreated,
-      //                 initialCameraPosition: _position == null
-      //                     ? const CameraPosition(target: LatLng(0.0, 0.0), zoom: 20)
-      //                     : CameraPosition(
-      //                         target: LatLng(_position!.latitude, _position!.longitude),
-      //                         zoom: 20,
-      //                       ),
-      //               ),
-      //             )
-      //           )
-      //         ]
-      //       )
-      //     )
-      //   ],
-      // ),
-
       bottomNavigationBar: BottomNavigationBar(
         // Bottom navigation bar with Home, Upload, and Profile buttons.
         items: const <BottomNavigationBarItem>[
