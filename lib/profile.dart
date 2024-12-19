@@ -15,9 +15,7 @@ import 'dart:async';
 
 import 'dart:convert';
 
-
-
-class Profile extends StatefulWidget{
+class Profile extends StatefulWidget {
   const Profile({super.key, required this.title});
   final String title;
   @override
@@ -25,18 +23,16 @@ class Profile extends StatefulWidget{
 }
 
 class _ProfileState extends State<Profile> {
-    Future<DocumentSnapshot>? userDocFuture;
-    
+  Future<DocumentSnapshot>? userDocFuture;
 
- 
   int _selectedIndex = 0;
   final _imagController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  SyncManager sm = SyncManager();
+  SyncManager sm = SyncManager.instance;
   String? _base64Image;
   XFile? _selectedImage;
   String? _profilePic;
-  File ? _image;
+  File? _image;
 
   @override
   void initState() {
@@ -49,7 +45,7 @@ class _ProfileState extends State<Profile> {
     _imagController.dispose();
     super.dispose();
   }
-  
+
   /*Future<void> _fetchProfilePic() async {
 
     try {
@@ -75,7 +71,8 @@ class _ProfileState extends State<Profile> {
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.camera); 
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.camera);
     // We can add the option for gallery as well by usering 'ImageSource.gallery'
 
     if (pickedFile != null) {
@@ -116,12 +113,13 @@ class _ProfileState extends State<Profile> {
       }
     }
   }
-  
-  void _onItemTapped(int index){ // _onItemTapped runs the bottomNavigationBar
-    setState((){
+
+  void _onItemTapped(int index) {
+    // _onItemTapped runs the bottomNavigationBar
+    setState(() {
       _selectedIndex = index;
     });
-    switch(index){
+    switch (index) {
       case 0:
         context.go('/');
         break;
@@ -133,33 +131,34 @@ class _ProfileState extends State<Profile> {
         break;
     }
   }
-Future<void> _getImage() async {
+
+  Future<void> _getImage() async {
     final ImagePicker picker = ImagePicker();
     // capture an image from the camera
     final XFile? photo = await picker.pickImage(source: ImageSource.camera);
-    if(photo != null) {
+    if (photo != null) {
       // Android
-        setState((){
-          _image = File(photo.path);
-        });
-      }
-  }
-
-Future<DocumentSnapshot> _getUserInfo() async { // Get user data from firestore
-    try {
-      DocumentSnapshot fetchedUserDoc = await FirebaseFirestore.instance 
-          .collection('users')
-          .doc(FirebaseAuth.instance.currentUser?.uid) // Replace 'userID' with the actual user's ID
-          .get();
-
-      return fetchedUserDoc;//Return the fetched data
-    } catch (e) {
-      print('Error fetching user data: $e');
-      rethrow;// Thorw again to catch it
+      setState(() {
+        _image = File(photo.path);
+      });
     }
   }
 
+  Future<DocumentSnapshot> _getUserInfo() async {
+    // Get user data from firestore
+    try {
+      DocumentSnapshot fetchedUserDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser
+              ?.uid) // Replace 'userID' with the actual user's ID
+          .get();
 
+      return fetchedUserDoc; //Return the fetched data
+    } catch (e) {
+      print('Error fetching user data: $e');
+      rethrow; // Thorw again to catch it
+    }
+  }
 
 /*
 
@@ -249,8 +248,6 @@ Future<DocumentSnapshot> _getUserInfo() async { // Get user data from firestore
   }
 
 */
-
-  
 
   @override
 /*Widget build(BuildContext context) {
@@ -511,67 +508,69 @@ Future<DocumentSnapshot> _getUserInfo() async { // Get user data from firestore
   }
 */
 
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      title: Text(
-        widget.title,
-        style: GoogleFonts.abrilFatface(
-          fontSize: 32.0,
-          color: const Color.fromARGB(255, 16, 43, 92),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(
+          widget.title,
+          style: GoogleFonts.abrilFatface(
+            fontSize: 32.0,
+            color: const Color.fromARGB(255, 16, 43, 92),
+          ),
         ),
       ),
-    ),
-    body: SafeArea(
-      child: Stack(  // Use Stack to position elements
-        children: [
-          // Your existing content goes here
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        height: 150,
-                        width: 150,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Image.asset(
-                          'assets/images/fishkitten.png',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(90.0),
+      body: SafeArea(
+        child: Stack(
+          // Use Stack to position elements
+          children: [
+            // Your existing content goes here
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        Container(
+                          height: 150,
+                          width: 150,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          backgroundColor: const Color.fromARGB(255, 115, 181, 110),
-                          minimumSize: Size(170, 50),
-                        ),
-                        onPressed: () async {
-                          await _showFriendsPopup(context);
-                        },
-                        child: Text(
-                          "Friends",
-                          style: GoogleFonts.abrilFatface(
-                            fontSize: 20.0,
-                            color: Color.fromARGB(255, 16, 43, 92),
+                          child: Image.asset(
+                            'assets/images/fishkitten.png',
+                            fit: BoxFit.cover,
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 16),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(90.0),
+                            ),
+                            backgroundColor:
+                                const Color.fromARGB(255, 115, 181, 110),
+                            minimumSize: Size(170, 50),
+                          ),
+                          onPressed: () async {
+                            await _showFriendsPopup(context);
+                          },
+                          child: Text(
+                            "Friends",
+                            style: GoogleFonts.abrilFatface(
+                              fontSize: 20.0,
+                              color: Color.fromARGB(255, 16, 43, 92),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                
-           /* ElevatedButton(
+
+                  /* ElevatedButton(
               onPressed: () async {
                 DocumentSnapshot? userDoc = await userDocFuture;
                 if (userDoc != null) { // Avoids runtime error if we are still fetching user info
@@ -592,129 +591,130 @@ Widget build(BuildContext context) {
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
             ),*/
-          
-                // More content (username, geocache counts, etc.)
-                Padding(
-                  padding: const EdgeInsets.only(left: 50.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'rwillowb',
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 16, 43, 92),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 30),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Geocaches found:",
-                      style: GoogleFonts.abrilFatface(
-                        fontSize: 30.0,
-                        color: const Color.fromARGB(255, 16, 43, 92),
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "     0", // Placeholder for Geocaches found count
-                      style: GoogleFonts.abrilFatface(
-                        fontSize: 25.0,
-                        color: const Color.fromARGB(255, 16, 43, 92),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 150),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Geocaches created:",
-                      style: GoogleFonts.abrilFatface(
-                        fontSize: 25.0,
-                        color: const Color.fromARGB(255, 16, 43, 92),
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "     0", // Placeholder for Geocaches created count
-                      style: GoogleFonts.abrilFatface(
-                        fontSize: 30.0,
-                        color: const Color.fromARGB(255, 16, 43, 92),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          // Positioned Update Profile button
-          
-        ],
-      ),
-    ),
-    bottomNavigationBar: BottomNavigationBar(
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(
-            Icons.home,
-            color: const Color.fromARGB(255, 115, 181, 110),
-          ),
-          label: 'Home',
-          backgroundColor: const Color.fromARGB(255, 115, 181, 110),
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(
-            Icons.add_circle,
-            color: const Color.fromARGB(255, 115, 181, 110),
-          ),
-          label: 'Upload',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(
-            Icons.person,
-            color: const Color.fromARGB(255, 115, 181, 110),
-          ),
-          label: 'Profile',
-        ),
-      ],
-      currentIndex: _selectedIndex,
-      selectedItemColor: Theme.of(context).colorScheme.primary,
-      selectedLabelStyle: const TextStyle(
-        fontSize: 16.0,
-        fontWeight: FontWeight.bold,
-      ),
-      unselectedLabelStyle: const TextStyle(
-        fontSize: 16.0,
-        fontWeight: FontWeight.bold,
-        color: Colors.black,
-      ),
-      onTap: _onItemTapped,
-    ),
-  );
-}
 
-void _showUpdateProfileDialog(DocumentSnapshot? userDoc) {
+                  // More content (username, geocache counts, etc.)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'rwillowb',
+                        style: const TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 16, 43, 92),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Geocaches found:",
+                        style: GoogleFonts.abrilFatface(
+                          fontSize: 30.0,
+                          color: const Color.fromARGB(255, 16, 43, 92),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "     0", // Placeholder for Geocaches found count
+                        style: GoogleFonts.abrilFatface(
+                          fontSize: 25.0,
+                          color: const Color.fromARGB(255, 16, 43, 92),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 150),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Geocaches created:",
+                        style: GoogleFonts.abrilFatface(
+                          fontSize: 25.0,
+                          color: const Color.fromARGB(255, 16, 43, 92),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "     0", // Placeholder for Geocaches created count
+                        style: GoogleFonts.abrilFatface(
+                          fontSize: 30.0,
+                          color: const Color.fromARGB(255, 16, 43, 92),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Positioned Update Profile button
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.home,
+              color: const Color.fromARGB(255, 115, 181, 110),
+            ),
+            label: 'Home',
+            backgroundColor: const Color.fromARGB(255, 115, 181, 110),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.add_circle,
+              color: const Color.fromARGB(255, 115, 181, 110),
+            ),
+            label: 'Upload',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.person,
+              color: const Color.fromARGB(255, 115, 181, 110),
+            ),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        selectedLabelStyle: const TextStyle(
+          fontSize: 16.0,
+          fontWeight: FontWeight.bold,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 16.0,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  void _showUpdateProfileDialog(DocumentSnapshot? userDoc) {
     TextEditingController usernameController = TextEditingController(
-      text: userDoc?.data() != null ? (userDoc?.data() as Map<String, dynamic>)['username'] ?? '' : '',
+      text: userDoc?.data() != null
+          ? (userDoc?.data() as Map<String, dynamic>)['username'] ?? ''
+          : '',
     );
 
     // Show the dialog with an option to pick an image
@@ -755,7 +755,10 @@ void _showUpdateProfileDialog(DocumentSnapshot? userDoc) {
                     return;
                   }
                   // Update Firestore with new profile information
-                  await FirebaseFirestore.instance.collection('users').doc(userId).set({
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(userId)
+                      .set({
                     'username': usernameController.text,
                   }, SetOptions(merge: true));
 
@@ -777,67 +780,66 @@ void _showUpdateProfileDialog(DocumentSnapshot? userDoc) {
     );
   }
 
-Future<void> _showFriendsPopup(BuildContext context) async {
-  //List<Map<String, dynamic>> friends = await _fetchFriends();
-  List<Map<String, dynamic>> friends = [
-    {"name": "Drew"},
-  ];
+  Future<void> _showFriendsPopup(BuildContext context) async {
+    //List<Map<String, dynamic>> friends = await _fetchFriends();
+    List<Map<String, dynamic>> friends = [
+      {"name": "Drew"},
+    ];
 
-  String imagePath = '/mnt/data/kittenterrorist.webp';
-  showDialog(
-  context: context,
-  builder: (BuildContext context) {
-    return AlertDialog(
-      title: const Text('Friends'),
-      content: friends.isNotEmpty
-          ? SizedBox(
-              width: double.maxFinite,
-              height: 300.0,
-              child: ListView.separated(
-                itemCount: friends.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: SizedBox(
-                      width: 100,
-                      height: 100,
-                      child: Image.asset(
-                        'assets/images/kittenterrorist.webp', // Make sure the path is correct
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    title: Text(
-                      friends[index]['name'] ?? "Unknown",
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  );
-                },
-                separatorBuilder: (context, index) {
-                  return const Divider(
-                    thickness: 1.0,
-                    color: Colors.grey,
-                  );
-                },
-              ),
-            )
-          : const Text('No friends found.'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-      ],
+    String imagePath = '/mnt/data/kittenterrorist.webp';
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Friends'),
+          content: friends.isNotEmpty
+              ? SizedBox(
+                  width: double.maxFinite,
+                  height: 300.0,
+                  child: ListView.separated(
+                    itemCount: friends.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        leading: SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: Image.asset(
+                            'assets/images/kittenterrorist.webp', // Make sure the path is correct
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        title: Text(
+                          friends[index]['name'] ?? "Unknown",
+                          style: const TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    },
+                    separatorBuilder: (context, index) {
+                      return const Divider(
+                        thickness: 1.0,
+                        color: Colors.grey,
+                      );
+                    },
+                  ),
+                )
+              : const Text('No friends found.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
     );
-  },
-  );
-}
+  }
 
 /*Future<List<Map<String, dynamic>>> _fetchFriends() async {
   final db = await sm._getDatabase(); // Replace with your DB access function
   final result = await db.query('friends'); // Query the local 'friends' table
   return result; // Return the list of friends
 }*/
-
 }

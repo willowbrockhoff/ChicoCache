@@ -69,7 +69,7 @@ class _CreateCacheState extends State<CreateCache> {
             target: _position != null
                 ? LatLng(_position!.latitude, _position!.longitude)
                 : const LatLng(0.0, 0.0),
-            zoom: 20,
+            zoom: 15,
           ),
         ),
       );
@@ -92,7 +92,7 @@ class _CreateCacheState extends State<CreateCache> {
             CameraUpdate.newCameraPosition(
               CameraPosition(
                 target: LatLng(_position!.latitude, _position!.longitude),
-                zoom: 20,
+                zoom: 15,
               ),
             ),
           );
@@ -192,11 +192,11 @@ class _CreateCacheState extends State<CreateCache> {
                 child: GoogleMap(
                   onMapCreated: _onMapCreated,
                   initialCameraPosition: _position == null
-                      ? const CameraPosition(target: LatLng(0.0, 0.0), zoom: 20)
+                      ? const CameraPosition(target: LatLng(0.0, 0.0), zoom: 15)
                       : CameraPosition(
                           target:
                               LatLng(_position!.latitude, _position!.longitude),
-                          zoom: 20,
+                          zoom: 15,
                         ),
                 ),
               ),

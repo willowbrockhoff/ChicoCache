@@ -7,7 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'location_manager.dart';
 
-class HomeFeed extends StatefulWidget{
+class HomeFeed extends StatefulWidget {
   const HomeFeed({super.key, required this.title});
   final String title;
   @override
@@ -52,9 +52,9 @@ class _HomeFeedState extends State<HomeFeed> {
         CameraUpdate.newCameraPosition(
           CameraPosition(
             target: _position != null
-              ? LatLng(_position!.latitude, _position!.longitude)
-              : const LatLng(0.0, 0.0),
-            zoom: 20,
+                ? LatLng(_position!.latitude, _position!.longitude)
+                : const LatLng(0.0, 0.0),
+            zoom: 15,
           ),
         ),
       );
@@ -62,7 +62,8 @@ class _HomeFeedState extends State<HomeFeed> {
   }
 
   Future<void> _startLocationStream() async {
-    _positionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+    _positionStream =
+        Geolocator.getPositionStream(locationSettings: locationSettings).listen(
       (Position position) {
         setState(() {
           _position = position;
@@ -74,7 +75,7 @@ class _HomeFeedState extends State<HomeFeed> {
             CameraUpdate.newCameraPosition(
               CameraPosition(
                 target: LatLng(_position!.latitude, _position!.longitude),
-                zoom: 20,
+                zoom: 15,
               ),
             ),
           );
@@ -82,14 +83,15 @@ class _HomeFeedState extends State<HomeFeed> {
       },
     );
   }
- 
+
   int _selectedIndex = 0;
-  
-  void _onItemTapped(int index){ // _onItemTapped runs the bottomNavigationBar
-    setState((){
+
+  void _onItemTapped(int index) {
+    // _onItemTapped runs the bottomNavigationBar
+    setState(() {
       _selectedIndex = index;
     });
-    switch(index){
+    switch (index) {
       case 0:
         context.go('/');
         break;
@@ -101,21 +103,20 @@ class _HomeFeedState extends State<HomeFeed> {
         break;
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text( // Title at top left of page
-          widget.title,
-          style: GoogleFonts.abrilFatface(
-            fontSize: 32.0, 
-            color: const Color.fromARGB(255, 16, 43, 92), 
-          )
-        ),
+        title: Text(
+            // Title at top left of page
+            widget.title,
+            style: GoogleFonts.abrilFatface(
+              fontSize: 32.0,
+              color: const Color.fromARGB(255, 16, 43, 92),
+            )),
       ),
-
       body: Column(
         children: [
           Padding(
@@ -132,7 +133,7 @@ class _HomeFeedState extends State<HomeFeed> {
                     minimumSize: Size(170, 50),
                   ),
                   onPressed: () {
-                    context.go('/chicofeed'); 
+                    context.go('/chicofeed');
                   },
                   child: Text(
                     "Chico",
@@ -140,7 +141,7 @@ class _HomeFeedState extends State<HomeFeed> {
                       fontSize: 20.0,
                       color: const Color.fromARGB(255, 16, 43, 92),
                     ),
-                    ),
+                  ),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -151,7 +152,7 @@ class _HomeFeedState extends State<HomeFeed> {
                     minimumSize: const Size(170, 50),
                   ),
                   onPressed: () {
-                    context.go('/friendfeed'); 
+                    context.go('/friendfeed');
                   },
                   child: Text(
                     "Friends",
@@ -169,16 +170,18 @@ class _HomeFeedState extends State<HomeFeed> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Expanded (
+                Expanded(
                   child: Container(
                     height: 400,
                     child: GoogleMap(
                       onMapCreated: _onMapCreated,
                       initialCameraPosition: _position == null
-                          ? const CameraPosition(target: LatLng(0.0, 0.0), zoom: 20)
+                          ? const CameraPosition(
+                              target: LatLng(0.0, 0.0), zoom: 15)
                           : CameraPosition(
-                              target: LatLng(_position!.latitude, _position!.longitude),
-                              zoom: 20,
+                              target: LatLng(
+                                  _position!.latitude, _position!.longitude),
+                              zoom: 15,
                             ),
                     ),
                   ),
@@ -188,46 +191,49 @@ class _HomeFeedState extends State<HomeFeed> {
           ),
         ],
       ),
-      
-      bottomNavigationBar: BottomNavigationBar( // Bottom navigation bar with Home, Upload, and Profile buttons.
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home,
-                color: const Color.fromARGB(255, 115, 181, 110),
-                ),
-              label: 'Home',
-              backgroundColor: const Color.fromARGB(255, 115, 181, 110),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.add_circle,
-                color: const Color.fromARGB(255, 115, 181, 110),
-              ),
-              label: 'Upload',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person,
+      bottomNavigationBar: BottomNavigationBar(
+        // Bottom navigation bar with Home, Upload, and Profile buttons.
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.home,
               color: const Color.fromARGB(255, 115, 181, 110),
-              ),
-              label: 'Profile',
             ),
-          ],
-          
-          currentIndex: _selectedIndex,
-          selectedItemColor: Theme.of(context).colorScheme.primary,  
-          
-          selectedLabelStyle: const TextStyle( //selctedItemColor and unselctedItemColor embolden the Home, Upload, and Profile labels
-            fontSize: 16.0,                      // both functions set the values the same with the goal of readabilty (not clarifying which is pressed)
-            fontWeight: FontWeight.bold, 
+            label: 'Home',
+            backgroundColor: const Color.fromARGB(255, 115, 181, 110),
           ),
-          unselectedLabelStyle: const TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.black, 
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.add_circle,
+              color: const Color.fromARGB(255, 115, 181, 110),
+            ),
+            label: 'Upload',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.person,
+              color: const Color.fromARGB(255, 115, 181, 110),
+            ),
+            label: 'Profile',
+          ),
+        ],
 
-          onTap: _onItemTapped,
+        currentIndex: _selectedIndex,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+
+        selectedLabelStyle: const TextStyle(
+          //selctedItemColor and unselctedItemColor embolden the Home, Upload, and Profile labels
+          fontSize:
+              16.0, // both functions set the values the same with the goal of readabilty (not clarifying which is pressed)
+          fontWeight: FontWeight.bold,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 16.0,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+
+        onTap: _onItemTapped,
       ),
     );
   }

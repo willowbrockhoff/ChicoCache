@@ -89,7 +89,7 @@ class _ChicoFeedState extends State<ChicoFeed> {
             CameraUpdate.newCameraPosition(
               CameraPosition(
                 target: LatLng(_position!.latitude, _position!.longitude),
-                zoom: 20,
+                zoom: 15,
               ),
             ),
           );
@@ -225,11 +225,11 @@ class _ChicoFeedState extends State<ChicoFeed> {
               child: GoogleMap(
                 onMapCreated: _onMainMapCreated,
                 initialCameraPosition: _position == null
-                    ? const CameraPosition(target: LatLng(0.0, 0.0), zoom: 20)
+                    ? const CameraPosition(target: LatLng(0.0, 0.0), zoom: 15)
                     : CameraPosition(
                         target:
                             LatLng(_position!.latitude, _position!.longitude),
-                        zoom: 20,
+                        zoom: 15,
                       ),
                 markers: _geocacheData.map((geocache) {
                   return Marker(
