@@ -12,11 +12,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 //import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class SyncManager {
+  //SyncManager._privateConstructor();
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final localDatabase _dbInstance = localDatabase.instance;
   //SyncManager._privateConstructor();
   static final SyncManager _instance = SyncManager();
   static SyncManager get instance => _instance;
+  //final FirebaseAuth _auth = FirebaseAuth.instance;
+  //SyncManager._privateConstructor();
+  //static final SyncManager _instance = SyncManager();
+  //static SyncManager get instance => _instance;
   //final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> addFriend(String currentUserUid, String friendUid) async {
@@ -156,9 +162,8 @@ Future<List<Map<String, dynamic>>> loadGeocacheData() async {
     Query query = _firestore.collection('users');
     // Only query data newer than our most current local record
     if (lastSync != null) {
-      query = query.where(
-        'updatedAt', isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync)
-      );
+      query = query.where('updatedAt',
+          isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync));
     }
 
     final batch = db.batch();
@@ -200,9 +205,8 @@ Future<List<Map<String, dynamic>>> loadGeocacheData() async {
     Query query = _firestore.collection('geocaches');
     // Only query data newer than our most current local record
     if (lastSync != null) {
-      query = query.where(
-        'updatedAt', isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync)
-      );
+      query = query.where('updatedAt',
+          isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync));
     }
 
     final batch = db.batch();
@@ -211,11 +215,14 @@ Future<List<Map<String, dynamic>>> loadGeocacheData() async {
     for (final doc in qs.docs) {
       final data = doc.data() as Map<String, dynamic>;
 
-      final geoPoint =data['location'] as GeoPoint;
+      final geoPoint = data['location'] as GeoPoint;
       final lat = geoPoint.latitude;
       final long = geoPoint.longitude; // Appreciate long not being reserved
 
-      final lastUpdated = data['lastUpdated'] as Timestamp;
+      var lastUpdated = Timestamp(0, 0);
+      if (data['lastUpdated'] != null) {
+        lastUpdated = data['lastUpdated'] as Timestamp;
+      }
       final lastUpdatedDate = lastUpdated.toDate();
 
       if (lastUpdatedDate.isAfter(maxLastUpdated)) {
@@ -247,9 +254,8 @@ Future<List<Map<String, dynamic>>> loadGeocacheData() async {
     Query query = _firestore.collection('comments');
     // Only query data newer than our most current local record
     if (lastSync != null) {
-      query = query.where(
-        'updatedAt', isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync)
-      );
+      query = query.where('updatedAt',
+          isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync));
     }
 
     final batch = db.batch();
@@ -272,7 +278,8 @@ Future<List<Map<String, dynamic>>> loadGeocacheData() async {
           'cache_id': data['cache_id'],
           'comment_photos': data['comment_photos'],
           'comment_text': data['comment_text'],
-          'timestamp': (data['timestamp'] as Timestamp).toDate().microsecondsSinceEpoch,
+          'timestamp':
+              (data['timestamp'] as Timestamp).toDate().microsecondsSinceEpoch,
           'user_id': data['user_id'],
         },
         conflictAlgorithm: ConflictAlgorithm.replace,
@@ -289,9 +296,8 @@ Future<List<Map<String, dynamic>>> loadGeocacheData() async {
     Query query = _firestore.collection('friends');
     // Only query data newer than our most current local record
     if (lastSync != null) {
-      query = query.where(
-        'updatedAt', isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync)
-      );
+      query = query.where('updatedAt',
+          isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(lastSync));
     }
 
     final batch = db.batch();
@@ -365,9 +371,10 @@ Future<List<Map<String, dynamic>>> loadGeocacheData() async {
       'SyncStatus',
       {
         'collectionName': collectionName,
-        'lastSyncTime': timestamp,
+        'lastSyncTime': timestamp.millisecondsSinceEpoch,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
+
 }

@@ -8,6 +8,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // fetching uuid
+
 
 import 'location_manager.dart';
 import 'sync_manager.dart';
@@ -33,13 +35,13 @@ class _CreateCacheState extends State<CreateCache> {
   String? _base64Image;
   XFile? _selectedImage;
   Position? _position;
-  
 
   @override
   void initState() {
     super.initState();
     _locationSetup();
   }
+
 
   @override
   void dispose() {
@@ -143,47 +145,7 @@ class _CreateCacheState extends State<CreateCache> {
           }
         }
       }
-    }
-
-    // File? imageFile;
-    // if (pickedFile != null) {
-    //   imageFile = File(pickedFile!.path);
-    // }
-
-    // if (imageFile != null) {
-    //   File? compressedFile = await FlutterImageCompress.compressAndGetFile(
-    //     imageFile.path,
-    //     "${imageFile.path}_compressed.jpg",
-    //     minWidth: 640,
-    //     minHeight: 480,
-    //     quality: 80, // Initial quality setting
-    //   );
-
-    //   if (compressedFile != null) {
-    //     // Iteratively compress until size < maxSizeInKB
-    //     int fileSizeInKB = compressedFile.lengthSync() ~/ 1024;
-    //     int currentQuality = 80;
-
-    //     while (fileSizeInKB > 300 && currentQuality > 10) {
-    //       currentQuality -= 10; // Reduce quality in steps
-    //       compressedFile = await FlutterImageCompress.compressAndGetFile(
-    //         compressedFile!.path,
-    //         "${compressedFile!.path}_compressed.jpg",
-    //         quality: currentQuality,
-    //       );
-    //       if (compressedFile == null) return;
-    //       fileSizeInKB = compressedFile.lengthSync() ~/ 1024;
-    //     }
-
-    //     if (compressedFile != null) {
-    //       setState(() {
-    //         _selectedImage = compressedFile;
-    //         _base64Image = compressedFile?.readAsBytesSync() != null
-    //           ? base64Encode(compressedFile!.readAsBytesSync())
-    //           : "";
-    //       });
-    //     }
-    //   }
+    } 
   }
 
   int _selectedIndex = 0;
@@ -232,11 +194,11 @@ class _CreateCacheState extends State<CreateCache> {
                 child: GoogleMap(
                   onMapCreated: _onMapCreated,
                   initialCameraPosition: _position == null
-                      ? const CameraPosition(target: LatLng(0.0, 0.0), zoom: 20)
+                      ? const CameraPosition(target: LatLng(0.0, 0.0), zoom: 15)
                       : CameraPosition(
                           target:
                               LatLng(_position!.latitude, _position!.longitude),
-                          zoom: 20,
+                          zoom: 15,
                         ),
                 ),
               ),
@@ -365,10 +327,12 @@ class _CreateCacheState extends State<CreateCache> {
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
                                 _base64Image ??= "";
+                                final currentUserUid = FirebaseAuth.instance.currentUser!.uid;
+
                                 await sm.uploadGeocache(
                                   _nameController.text,
                                   _descController.text,
-                                  "example string for user id upload geocache form",
+                                  currentUserUid,
                                   _base64Image!,
                                   LatLng(double.parse(_latiController.text),
                                       double.parse(_longController.text)),

@@ -13,7 +13,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'sync_manager.dart';
 import 'location_manager.dart';
 
-class ChicoFeed extends StatefulWidget {
+class ChicoFeed extends StatefulWidget{
   const ChicoFeed({super.key, required this.title});
   final String title;
   @override
@@ -427,3 +427,6 @@ class _ChicoFeedState extends State<ChicoFeed> {
     );
   }
 }
+
+
+
