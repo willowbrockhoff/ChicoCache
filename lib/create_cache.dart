@@ -8,12 +8,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 import 'location_manager.dart';
 import 'sync_manager.dart';
 
-class CreateCache extends StatefulWidget{
+class CreateCache extends StatefulWidget {
   const CreateCache({super.key, required this.title});
   final String title;
   @override
@@ -30,10 +29,11 @@ class _CreateCacheState extends State<CreateCache> {
   StreamSubscription<Position>? _positionStream;
   final _formKey = GlobalKey<FormState>();
   late GoogleMapController? mapCont;
-  SyncManager sm = SyncManager();
+  SyncManager sm = SyncManager.instance;
   String? _base64Image;
   XFile? _selectedImage;
   Position? _position;
+  
 
   @override
   void initState() {
@@ -59,7 +59,6 @@ class _CreateCacheState extends State<CreateCache> {
     }
   }
 
-
   void _onMapCreated(GoogleMapController controller) {
     mapCont = controller;
 
@@ -68,8 +67,8 @@ class _CreateCacheState extends State<CreateCache> {
         CameraUpdate.newCameraPosition(
           CameraPosition(
             target: _position != null
-              ? LatLng(_position!.latitude, _position!.longitude)
-              : const LatLng(0.0, 0.0),
+                ? LatLng(_position!.latitude, _position!.longitude)
+                : const LatLng(0.0, 0.0),
             zoom: 20,
           ),
         ),
@@ -78,7 +77,8 @@ class _CreateCacheState extends State<CreateCache> {
   }
 
   Future<void> _startLocationStream() async {
-    _positionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+    _positionStream =
+        Geolocator.getPositionStream(locationSettings: locationSettings).listen(
       (Position position) {
         setState(() {
           _position = position;
@@ -103,7 +103,8 @@ class _CreateCacheState extends State<CreateCache> {
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.camera); 
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.camera);
     // We can add the option for gallery as well by usering 'ImageSource.gallery'
 
     if (pickedFile != null) {
@@ -185,14 +186,14 @@ class _CreateCacheState extends State<CreateCache> {
     //   }
   }
 
- 
   int _selectedIndex = 0;
-  
-  void _onItemTapped(int index){ // _onItemTapped runs the bottomNavigationBar
-    setState((){
+
+  void _onItemTapped(int index) {
+    // _onItemTapped runs the bottomNavigationBar
+    setState(() {
       _selectedIndex = index;
     });
-    switch(index){
+    switch (index) {
       case 0:
         context.go('/');
         break;
@@ -204,229 +205,244 @@ class _CreateCacheState extends State<CreateCache> {
         break;
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text( // Title at top left of page
-          widget.title,
-          style: GoogleFonts.abrilFatface(
-            fontSize: 32.0,
-            color: const Color.fromARGB(255, 16, 43, 92), 
-          )
-        ),
+        title: Text(
+            // Title at top left of page
+            widget.title,
+            style: GoogleFonts.abrilFatface(
+              fontSize: 32.0,
+              color: const Color.fromARGB(255, 16, 43, 92),
+            )),
       ),
-
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 18.0),
-                child: SizedBox (
-                      height: MediaQuery.of(context).size.height * .3,
-                      width: MediaQuery.of(context).size.width,
-                      child: GoogleMap(
-                        onMapCreated: _onMapCreated,
-                        initialCameraPosition: _position == null
-                            ? const CameraPosition(target: LatLng(0.0, 0.0), zoom: 20)
-                            : CameraPosition(
-                                target: LatLng(_position!.latitude, _position!.longitude),
-                                zoom: 20,
-                              ),
+          child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 18.0),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * .3,
+                width: MediaQuery.of(context).size.width,
+                child: GoogleMap(
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition: _position == null
+                      ? const CameraPosition(target: LatLng(0.0, 0.0), zoom: 20)
+                      : CameraPosition(
+                          target:
+                              LatLng(_position!.latitude, _position!.longitude),
+                          zoom: 20,
                         ),
                 ),
               ),
-              Padding(
+            ),
+            Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Form(
                   key: _formKey,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: const InputDecoration(
-                          icon: Icon(Icons.newspaper),
-                          hintText: 'Bridge Pocket',
-                          labelText: 'Geocache Title',
-                        ),
-                        validator: (value)
-                            => value == null || value.isEmpty ? 'Please enter a name' : null,
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _longController,
-                              decoration: const InputDecoration(
-                                icon: Icon(Icons.location_pin),
-                                hintText: '0.0',
-                                labelText: 'Longitude',
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a longitude';
-                                }
-                                try {
-                                  double.parse(value);
-                                } catch (e) {
-                                  return 'Please enter a valid longitude';
-                                }
-                                return null;
-                              },
-                            ),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          controller: _nameController,
+                          decoration: const InputDecoration(
+                            icon: Icon(Icons.newspaper),
+                            hintText: 'Bridge Pocket',
+                            labelText: 'Geocache Title',
                           ),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _latiController,
-                              decoration: const InputDecoration(
-                                icon: Icon(Icons.location_pin),
-                                hintText: '0.0',
-                                labelText: 'Latitude',
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'Please enter a name'
+                              : null,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: _longController,
+                                decoration: const InputDecoration(
+                                  icon: Icon(Icons.location_pin),
+                                  hintText: '0.0',
+                                  labelText: 'Longitude',
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter a longitude';
+                                  }
+                                  try {
+                                    double.parse(value);
+                                  } catch (e) {
+                                    return 'Please enter a valid longitude';
+                                  }
+                                  return null;
+                                },
                               ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a latitude';
-                                }
-                                try {
-                                  double.parse(value);
-                                } catch (e) {
-                                  return 'Please enter a valid latitude';
-                                }
-                                return null;
-                              },
                             ),
+                            Expanded(
+                              child: TextFormField(
+                                controller: _latiController,
+                                decoration: const InputDecoration(
+                                  icon: Icon(Icons.location_pin),
+                                  hintText: '0.0',
+                                  labelText: 'Latitude',
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter a latitude';
+                                  }
+                                  try {
+                                    double.parse(value);
+                                  } catch (e) {
+                                    return 'Please enter a valid latitude';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        TextFormField(
+                          controller: _descController,
+                          decoration: const InputDecoration(
+                            icon: Icon(Icons.comment),
+                            hintText: 'It\'s hidden!',
+                            labelText: 'Description',
                           ),
-                        ],
-                      ),
-                      TextFormField(
-                        controller: _descController,
-                        decoration: const InputDecoration(
-                          icon: Icon(Icons.comment),
-                          hintText: 'It\'s hidden!',
-                          labelText: 'Description',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            value = ""; // Default to empty description
-                            return null;
-                          }
-                          return null;
-                        },
-                      ),
-                      TextFormField(
-                        keyboardType: TextInputType.number,
-                        controller: _diffController,
-                        decoration: const InputDecoration(
-                          icon: Icon(Icons.dangerous),
-                          hintText: '1-5',
-                          labelText: 'Difficulty',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a difficulty level';
-                          }
-                          try {
-                            int diff = int.parse(value);
-                            if (diff < 1 || diff > 5) {
-                              throw RangeError('Value out of range');
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              value = ""; // Default to empty description
+                              return null;
                             }
-                          } catch (e) {
-                            return 'Please enter a valid integer between 1 and 5';
-                          }
-                          return null;
-                        },
-                      ),
-                      Row(
-                        children: [
+                            return null;
+                          },
+                        ),
+                        TextFormField(
+                          keyboardType: TextInputType.number,
+                          controller: _diffController,
+                          decoration: const InputDecoration(
+                            icon: Icon(Icons.dangerous),
+                            hintText: '1-5',
+                            labelText: 'Difficulty',
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a difficulty level';
+                            }
+                            try {
+                              int diff = int.parse(value);
+                              if (diff < 1 || diff > 5) {
+                                throw RangeError('Value out of range');
+                              }
+                            } catch (e) {
+                              return 'Please enter a valid integer between 1 and 5';
+                            }
+                            return null;
+                          },
+                        ),
+                        Row(children: [
                           GestureDetector(
                             onTap: _pickImage,
                             child: _selectedImage != null
-                              ? Image.file(
-                                  File(_selectedImage!.path),
-                                  height: 150,
-                                  width: 150,
-                                  fit: BoxFit.cover,
-                                )
-                              : Container(
-                                height: 150,
-                                width: 150,
-                                color: Colors.grey[300],
-                                child: Icon(Icons.add_a_photo, size: 50),
-                              ),
+                                ? Image.file(
+                                    File(_selectedImage!.path),
+                                    height: 150,
+                                    width: 150,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Container(
+                                    height: 150,
+                                    width: 150,
+                                    color: Colors.grey[300],
+                                    child: Icon(Icons.add_a_photo, size: 50),
+                                  ),
                           ),
                           SizedBox(width: 20),
                           ElevatedButton(
-                            onPressed: () async{
+                            onPressed: () async {
                               if (_formKey.currentState!.validate()) {
-                                if (_base64Image == null) {
-                                  _base64Image = "";
-                                }
+                                _base64Image ??= "";
                                 await sm.uploadGeocache(
                                   _nameController.text,
                                   _descController.text,
                                   "example string for user id upload geocache form",
                                   _base64Image!,
-                                  LatLng(double.parse(_latiController.text), double.parse(_longController.text)),
+                                  LatLng(double.parse(_latiController.text),
+                                      double.parse(_longController.text)),
                                   int.parse(_diffController.text),
                                 );
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          "Geocache uploaded successfully")),
+                                );
+
+                                setState(() {
+                                  _nameController.clear();
+                                  _longController.clear();
+                                  _latiController.clear();
+                                  _descController.clear();
+                                  _diffController.clear();
+                                  _imagController.clear();
+                                  _selectedImage = null;
+                                  _base64Image = null;
+                                });
                               }
                             },
-                            child: Text('Submit'),
-                          ) 
-                        ]
-                      )         
-                    ]
-                  ),
-                )
-              )
-            ],
-          ),
-        )
-      ),
-
-      bottomNavigationBar: BottomNavigationBar( // Bottom navigation bar with Home, Upload, and Profile buttons.
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home,
-                color: const Color.fromARGB(255, 115, 181, 110),
-                ),
-              label: 'Home',
-              backgroundColor: const Color.fromARGB(255, 115, 181, 110),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.add_circle,
-                color: const Color.fromARGB(255, 115, 181, 110),
-              ),
-              label: 'Upload',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person,
-              color: const Color.fromARGB(255, 115, 181, 110),
-              ),
-              label: 'Profile',
-            ),
+                            child: const Text('Submit'),
+                          )
+                        ])
+                      ]),
+                ))
           ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: Theme.of(context).colorScheme.primary,  
-          
-          selectedLabelStyle: const TextStyle( //selctedItemColor and unselctedItemColor embolden the Home, Upload, and Profile labels
-            fontSize: 16.0,                      // both functions set the values the same with the goal of readabilty (not clarifying which is pressed)
-            fontWeight: FontWeight.bold, 
+        ),
+      )),
+      bottomNavigationBar: BottomNavigationBar(
+        // Bottom navigation bar with Home, Upload, and Profile buttons.
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.home,
+              color: const Color.fromARGB(255, 115, 181, 110),
+            ),
+            label: 'Home',
+            backgroundColor: const Color.fromARGB(255, 115, 181, 110),
           ),
-          unselectedLabelStyle: const TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.black, 
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.add_circle,
+              color: const Color.fromARGB(255, 115, 181, 110),
+            ),
+            label: 'Upload',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.person,
+              color: const Color.fromARGB(255, 115, 181, 110),
+            ),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
 
-          onTap: _onItemTapped,
+        selectedLabelStyle: const TextStyle(
+          //selctedItemColor and unselctedItemColor embolden the Home, Upload, and Profile labels
+          fontSize:
+              16.0, // both functions set the values the same with the goal of readabilty (not clarifying which is pressed)
+          fontWeight: FontWeight.bold,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 16.0,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+
+        onTap: _onItemTapped,
       ),
     );
   }

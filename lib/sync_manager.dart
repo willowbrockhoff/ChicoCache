@@ -14,7 +14,58 @@ import 'package:firebase_auth/firebase_auth.dart';
 class SyncManager {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final localDatabase _dbInstance = localDatabase.instance;
+  //SyncManager._privateConstructor();
+  static final SyncManager _instance = SyncManager();
+  static SyncManager get instance => _instance;
   //final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<void> addFriend(String currentUserUid, String friendUid) async {
+    final userRef = FirebaseFirestore.instance.collection('users').doc(currentUserUid);
+    final friendRef = FirebaseFirestore.instance.collection('users').doc(friendUid);
+
+    // Run transaction to ensure atomicity
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      // Get the current user and friend data
+      final userDoc = await transaction.get(userRef);
+      final friendDoc = await transaction.get(friendRef);
+
+      // Check if both users exist
+      if (!userDoc.exists || !friendDoc.exists) {
+        throw Exception("One or both users do not exist.");
+      }
+
+      // Get the current friends list from the user's document
+      List<dynamic> friendsList = userDoc.data()?['friends'] ?? [];
+
+      // Avoid adding the same friend twice
+      if (!friendsList.contains(friendUid)) {
+        friendsList.add(friendUid);
+
+        // Update the user's friends array
+        transaction.update(userRef, {'friends': friendsList});
+      }
+
+      // Add the current user's UID to the friend's friends list (bi-directional)
+      List<dynamic> friendList = friendDoc.data()?['friends'] ?? [];
+      if (!friendList.contains(currentUserUid)) {
+        friendList.add(currentUserUid);
+        transaction.update(friendRef, {'friends': friendList});
+      }
+    });
+}
+
+
+Future<void> loadStartup() async {
+    await syncGeocaches();
+    await syncUsers();
+    await syncComments();
+    await syncFriends();
+  }
+
+Future<List<Map<String, dynamic>>> loadGeocacheData() async {
+    final db = await _getDatabase();
+    return await db.rawQuery('SELECT * FROM geocaches');
+  }
 
   Future<Database> _getDatabase() async {
     return await _dbInstance.database;
@@ -48,25 +99,56 @@ class SyncManager {
     try {
       // Convert LatLng to Firestore GeoPoint
       GeoPoint geoPoint = GeoPoint(coord.latitude, coord.longitude);
+      final currentUserUid = FirebaseAuth.instance.currentUser!.uid;
 
       // Create the geocache data for Firestore
       Map<String, dynamic> geoCacheData = {
         'cache_id': id,
         'creator_comments': desc,
-        'creator_id': 'user_id_here', // Set user ID dynamically as needed
+        'creator_id': currentUserUid, // Set user ID dynamically as needed
         'creator_photos': photos,
         'difficulty': diff,
         'location': geoPoint, // GeoPoint in Firestore
       };
 
       // Upload to Firestore
-      await _firestore.collection('geocaches').doc(id).set(geoCacheData);
+      await _firestore.collection('geocaches').doc(title).set(geoCacheData);
       print("Geocache synced to Firestore successfully!");
     } catch (e) {
       print("Error syncing geocache to Firestore: $e");
     }
   }
 
+  Future<void> updateProfile(String username, String id, String profilepicture) async {
+    final db = await _getDatabase();
+    Map<String, dynamic> user = {
+      'username': username,
+      'user_id': id,
+      'profile_pic': profilepicture,
+    };
+
+    await db.insert(
+      'users', // HERE
+      user,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    try{
+
+      Map<String, dynamic> userData = {
+        'username': username,
+        'user_id': id,
+        'profile_pic': profilepicture,
+      };
+      await _firestore.collection('users').doc(id).set(userData);
+      
+      print("ProfileData Synced to firestore!");
+    }catch(e){
+      print("Error syncing profile to firestore $e");
+    }
+
+  }
+  
   Future<void> syncUsers() async {
     final db = await _getDatabase();
 
